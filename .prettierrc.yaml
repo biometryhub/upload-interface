@@ -1,0 +1,11 @@
+overrides:
+  - files:
+      - src/**/*.ts
+      - types/**/*.ts
+      - src/**/*.tsx
+      - types/**/*.tsx
+    options:
+      semi: true
+      trailingComma: es5
+      singleQuote: false
+      printWidth: 80
