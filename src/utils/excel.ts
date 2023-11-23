@@ -68,7 +68,7 @@ const validators = {
   date: (v: any) => {
     if (typeof v === "string") {
       // match valid dd-mm-yyyy
-      return v.match(/([012][1-9]|[123][01])-(0[1-9]|1[012])-\d{4}/) != null;
+      return v.match(/\d{4}-(0[1-9]|1[012])-([012][1-9]|[123][01])/) != null;
     }
     return false;
   },

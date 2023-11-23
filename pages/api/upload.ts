@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { objectstorage } from "oci-sdk";
+import path from "path";
 import { UploadFile } from "../../src/api/schema";
 
 import { provider } from "../../src/api/utils";
@@ -14,10 +15,11 @@ const handler = async (
   const storageClient = new objectstorage.ObjectStorageClient({
     authenticationDetailsProvider: provider,
   });
+  const prefix = "2023_final_workshop/plant";
   const listObjectsPayload: objectstorage.requests.PutObjectRequest = {
     namespaceName: process.env.NEXT_PUBLIC_NAMESPACE,
     bucketName: process.env.NEXT_PUBLIC_BUCKET,
-    objectName: name,
+    objectName: path.join(prefix, name),
     putObjectBody: Buffer.from(
       body.replace(/^data:\w+\/[\w\.\-]+;base64,/, ""),
       "base64"
