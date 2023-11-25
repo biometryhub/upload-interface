@@ -45,10 +45,17 @@ export const SelectedFile = ({
       ) : (
         <>
           <a className={`file-name ${status}`}>{name}</a>
-          <b className={status}>
+          <a className={`file-glyph ${status}`}>
             <FileGlyph file={type} />
-          </b>
+          </a>
         </>
+      )}
+      {status === "uploaded" && (
+        <div className={`overlay ${status}`}>
+          <a title="uploaded">
+            <Glyph> </Glyph>
+          </a>
+        </div>
       )}
       <div
         className={`overlay discard ${status}`}
@@ -84,7 +91,7 @@ export const SelectedFile = ({
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        b {
+        .file-glyph {
           font-size: 11em;
           margin-top: -21px;
           overflow: hidden;
@@ -92,15 +99,24 @@ export const SelectedFile = ({
         .validating {
           color: ${colors.shadow};
         }
-        .valid {
+        .valid,
+        .uploaded {
           color: ${colors.green};
+          animation: fade-in 0.5s ease-in;
+        }
+        .overlay.uploaded {
+          display: flex;
+          justify-content: flex-end;
+          align-items: end;
+        }
+        .overlay.uploaded a {
+          font-size: 2em;
         }
         .invalid {
           color: ${colors.red};
           cursor: pointer;
         }
         .overlay {
-          color: ${colors.red};
           height: ${fileWidth}px;
           width: ${fileWidth}px;
           position: absolute;
@@ -127,10 +143,32 @@ export const SelectedFile = ({
         .invalid.overlay:hover {
           background: ${colors.red}${opacity.light};
         }
+        .uploading {
+          animation: fade-in-out 1.5s ease-out infinite 0s;
+        }
         img {
           height: 100%;
           width: 100%;
           object-fit: cover;
+        }
+        @keyframes fade-in-out {
+          0% {
+            opacity: 0.618;
+          }
+          50% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0.618;
+          }
+        }
+        @keyframes fade-in {
+          0% {
+            opacity: 0.618;
+          }
+          100% {
+            opacity: 1;
+          }
         }
       `}</style>
     </div>

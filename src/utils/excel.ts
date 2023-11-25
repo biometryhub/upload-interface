@@ -43,7 +43,7 @@ export const validate = (excel_binary: ArrayBuffer) => {
 
             result.errors.invalid[table][column] = [
               ...(result.errors.invalid[table]?.[column] || []),
-              rowNumber,
+              rowNumber + 2,
             ];
             // return;
           }

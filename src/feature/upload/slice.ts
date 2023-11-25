@@ -7,7 +7,7 @@ export type FileInfo = {
   name: string;
   data: string;
   type: string;
-  status?: "validating" | "valid" | "invalid";
+  status?: "validating" | "valid" | "invalid" | "uploading" | "uploaded";
   errors?: {
     missing: string[];
     invalid: {
@@ -55,6 +55,14 @@ const uploadSlice = createSlice({
       state.isReady = false;
       state.fileCount = state.files.length;
     },
+    startUploadFile: (state, action: StartUploadFilePayload) => {
+      const fileIndex = action.payload.fileIndex;
+      if (state.files[fileIndex].status !== "uploaded") {
+        state.files[fileIndex].status = "uploading";
+        state.pendingIndices = { ...state.pendingIndices, [fileIndex]: true };
+        state.isReady = false;
+      }
+    },
     updateFile: (state, action: UpdateFilePayload) => {
       const { fileIndex, ...payload } = action.payload;
 
@@ -99,7 +107,11 @@ const uploadSlice = createSlice({
         state.isReady = true;
       }
     },
-    requestDone: (_, action) => {},
+    uploadDone: (state, action: UploadDonePayload) => {
+      const fileIndex = action.payload.fileIndex;
+      state.files[fileIndex].status = "uploaded";
+      delete state.pendingIndices[fileIndex];
+    },
   },
 });
 
@@ -112,15 +124,22 @@ export const loadFile = createAction(
 
 export const uploadFile = createAction(
   "upload/uploadFiles",
-  (file: FileInfo) => ({ payload: { file: file } })
+  (file: FileInfo, fileIndex: number) => ({ payload: { file, fileIndex } })
 );
 
 type SelectFilePayload = PayloadAction<{ name: string; type: string }>;
+type StartUploadFilePayload = PayloadAction<{ fileIndex: number }>;
 type UpdateFilePayload = PayloadAction<FileInfo & { fileIndex: number }>;
 type RemoveFilePayload = PayloadAction<{ fileIndex: number }>;
+type UploadDonePayload = PayloadAction<{ fileIndex: number }>;
 
-export const { selectFile, requestDone, updateFile, removeFile } =
-  uploadSlice.actions;
+export const {
+  selectFile,
+  uploadDone,
+  updateFile,
+  removeFile,
+  startUploadFile,
+} = uploadSlice.actions;
 export const uploadReducer = uploadSlice.reducer;
 
 const createUploadSelector: SelectorCreator<UploadState> = (k) =>

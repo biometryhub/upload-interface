@@ -7,6 +7,7 @@ import {
   loadFile,
   selectFile,
   selectUpload,
+  startUploadFile,
   uploadFile,
 } from "../feature/upload/slice";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -92,11 +93,15 @@ export const DropZone = () => {
 export const UploadButton = (props: UploadButtonProps) => {
   const files = useAppSelector(selectUpload.files);
   const dispatch = useAppDispatch();
+  const upload = () => {
+    files.map((file, index) => {
+      dispatch(startUploadFile({ fileIndex: index }));
+      dispatch(uploadFile(file, index));
+    });
+  };
+
   return (
-    <Button
-      {...props}
-      onClick={() => files.map((file) => dispatch(uploadFile(file)))}
-    >
+    <Button {...props} onClick={() => upload()}>
       <b>Upload</b>
     </Button>
   );

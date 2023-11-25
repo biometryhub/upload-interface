@@ -10,7 +10,7 @@ import {
   loadFile,
   updateFile,
   FileInfo,
-  requestDone,
+  uploadDone,
   uploadFile,
 } from "./slice";
 
@@ -46,7 +46,7 @@ const uploadFileEpic = (action$: Observable<Action>) => {
           name: action.payload.file.name,
           body: action.payload.file.data,
         }
-      ).pipe(map((res) => requestDone(res)))
+      ).pipe(map((_) => uploadDone({ fileIndex: action.payload.fileIndex })))
     )
   );
 };
