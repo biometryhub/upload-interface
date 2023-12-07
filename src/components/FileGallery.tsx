@@ -200,12 +200,12 @@ export const ErrorDetailModal = ({ errorFile, ...props }: InfoModalProps) => {
   return errorFile ? (
     <Modal style={modalStyle} {...props}>
       <b>
-        Please follow the steps below to ensure that file '{errorFile.name}' is
-        valid.
+        Please follow the steps below to ensure that file{" "}
+        {`'${errorFile.name}'`} is valid.
       </b>
       <ul>
-        {errorFile.errors?.missing.map((table) => (
-          <li>
+        {errorFile.errors?.missing.map((table, i) => (
+          <li key={i}>
             <Glyph>{glyphs.missing} </Glyph> Ensure that table {table} exists.
           </li>
         ))}

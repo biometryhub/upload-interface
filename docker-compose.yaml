@@ -1,0 +1,15 @@
+version: "3.7"
+services:
+  db:
+    image: postgres:16.1-alpine3.18
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - ./volumes/setup:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/postgres
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+volumes:
+  db_data: null

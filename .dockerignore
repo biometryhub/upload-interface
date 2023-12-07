@@ -1,0 +1,10 @@
+oracle/
+.oci/
+.next/
+*.sql
+prisma/
+volumes/
+questions.md
+docker-compose.yaml
+README.md
+.env.local

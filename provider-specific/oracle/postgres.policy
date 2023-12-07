@@ -1,0 +1,10 @@
+Allow group postgres_users to read compartments in tenancy
+Allow group postgres_users to manage postgres-db-systems in compartment STATS
+Allow group postgres_users to manage postgres-backups in compartment STATS
+Allow group postgres_users to read postgres-work-requests in compartment STATS
+Allow group postgres_users to manage postgres-configuration in compartment STATS
+Allow group postgres_users to manage virtual-network-family in compartment STATS
+Allow group postgres_users to read secret-family in compartment STATS
+Allow group postgres_users to read vaults in compartment STATS
+Allow group postgres_users to read metrics in compartment STATS
+Allow group postgres_users to use tag-namespaces in tenancy

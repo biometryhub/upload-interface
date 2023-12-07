@@ -1,0 +1,251 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// originally from https://github.com/heuriscode/GRDC-dashboard/blob/main/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model Region {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sites  Site[]
+  events Event[]
+
+  @@map("regions")
+}
+
+model Site {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  region       Region?      @relation(fields: [regionId], references: [id])
+  regionId     Int          @unique
+  consultant   Consultancy? @relation(fields: [consultantId], references: [id])
+  consultantId Int          @unique
+
+  plots  Plot[]
+  groups Group[]
+  events Event[]
+
+  @@map("sites")
+}
+
+// Each site has a single consultant managing that site
+// each consultant can manage multiple sites
+model Consultancy {
+  id           Int      @id @default(autoincrement())
+  name         String
+  primaryUser  String
+  contactEmail String
+  contactPhone Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users User[]
+  sites Site[]
+
+  @@map("consultancies")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String
+  role      UserRoles
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  consultant   Consultancy? @relation(fields: [consultantId], references: [id])
+  consultantId Int          @unique
+
+  approved Boolean
+
+  @@map("users")
+}
+
+enum UserRoles {
+  USER
+  RESEARCHER
+}
+
+model Plot {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  site   Site? @relation(fields: [siteId], references: [id])
+  siteId Int   @unique
+  // system String
+
+  subplots Subplot[]
+  events   Event[]
+
+  @@map("plots")
+}
+
+model Subplot {
+  id        Int      @id @default(autoincrement())
+  label     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  plot    Plot?  @relation(fields: [plotId], references: [id])
+  plotId  Int    @unique
+  group   Group? @relation(fields: [groupId], references: [id])
+  groupId Int    @unique
+
+  events       Event[]
+  plot_actions Action[]
+
+  @@map("subplots")
+}
+
+// This is just a temporary (each year) mapping of subplots to a 'group'
+// subplots change their group membership each year
+// most actions (e.g. crop type, fertiliser, harvest) are done at the group level
+// so this is just a utility to more easily enter data so that group level actions flow down to subplots.
+model Group {
+  id        Int      @id @default(autoincrement())
+  // label     String // an alphanumeric label for each group
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  site   Site? @relation(fields: [siteId], references: [id])
+  siteId Int   @unique
+
+  subplots      Subplot[]
+  group_actions Action[]
+
+  @@map("groups")
+}
+
+// Event can occur at region, site, plot and subplot level
+model Event {
+  id          Int       @id @default(autoincrement())
+  description String
+  date        DateTime
+  type        EventType
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  region    Region?  @relation(fields: [regionId], references: [id])
+  regionId  Int      @unique
+  site      Site?    @relation(fields: [siteId], references: [id])
+  siteId    Int      @unique
+  plot      Plot?    @relation(fields: [plotId], references: [id])
+  plotId    Int      @unique
+  subplot   Subplot? @relation(fields: [subplotId], references: [id])
+  subplotId Int      @unique
+
+  data Json
+
+  // add event detail
+  rainfall                     Float?
+  windspeed                    Float?
+  pests                        Boolean?
+  temp_greater_than_30_degrees Boolean?
+  herbicide_spray_drift        Boolean?
+  other_event                  String?
+
+  // add event impact (if any)
+  crops_lost_percent            Float?
+  crop_damage_estimated_percent Float?
+  comments                      String?
+
+  @@map("events") //map to events table
+}
+
+// Action model for planned trial activities (e.g. fertiliser application)
+// actions can occur at a group or subplot level. If at group it automatically fills to subplot
+// QUESTION - if an action occurs for a group, it happens for all subplot members of that group. Can we set it up so the group level action fills details for plots instead of groups?
+model Action {
+  id          Int      @id @default(autoincrement())
+  description String
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  group     Group?   @relation(fields: [groupId], references: [id])
+  groupId   Int      @unique
+  subplot   Subplot? @relation(fields: [subplotId], references: [id])
+  subplotId Int      @unique
+
+  // describe each action - each action has different data needs
+  // QUESTION - should each action have a different table with some way of linking that to this by an indicator variable like an enum? except each enum has different fields
+
+  // crop stage at time of action
+  crop_stage    CropStage
+  action_reason Reason?
+
+  // Fertiliser application
+  fertiliser_name Fertiliser?
+  fertiliser_rate Float?
+
+  // Herbicide application
+  herbicide_name Herbicide?
+  herbicide_rate Float?
+  target_weeds   Weeds[] // QUESTION want to make this optional...
+
+  // Planting/seeding
+  crop_planted Crop?
+  density      Float?
+
+  // Harvest
+  harvest_crop Crop?
+  yield        Float?
+
+  // Biomass cut/assessment
+  area_cut Float?
+  biomass  Float?
+
+  action_comments  String?
+  general_comments String?
+}
+
+enum EventType {
+  RAINFALL
+  HAIL
+}
+
+enum Fertiliser {
+  FERT1
+  FERT2
+}
+
+enum CropStage {
+  STAGE1
+  STAGE2
+}
+
+enum Herbicide {
+  HERB1
+  HERB2
+}
+
+enum Reason {
+  REASON1
+  REASON2
+}
+
+enum Crop {
+  CROP1
+  CROP2
+}
+
+enum Weeds {
+  WEED1
+  WEED2
+}

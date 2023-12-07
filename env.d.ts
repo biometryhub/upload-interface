@@ -6,5 +6,6 @@ declare namespace NodeJS {
     NEXT_PUBLIC_API: string;
     NEXT_PUBLIC_NAMESPACE: string;
     NEXT_PUBLIC_BUCKET: string;
+    DB_URL: string;
   }
 }
