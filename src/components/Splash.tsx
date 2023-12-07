@@ -20,8 +20,8 @@ const Splash = () => {
           position: fixed;
           top: 0;
           left: 0;
-          zindex: 667;
-          flexflow: column;
+          z-index: 667;
+          flex-flow: column;
           margin: auto;
         }
         img {
@@ -33,7 +33,7 @@ const Splash = () => {
         }
         .logo {
           animation: loader 2s;
-          animationiterationcount: infinite;
+          animation-iteration-count: infinite;
         }
         @keyframes loader {
           0% {

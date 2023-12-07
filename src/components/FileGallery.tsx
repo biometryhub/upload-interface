@@ -130,8 +130,8 @@ export const SelectedFile = ({
           font-size: 1.5em;
           -webkit-text-stroke: 1px white;
           position: absolute;
-          right: -5px;
-          top: 0;
+          right: -8px;
+          top: 3px;
           display: none;
         }
         .glyph:hover {

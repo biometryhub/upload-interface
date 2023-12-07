@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import Link, { LinkProps } from "next/link";
 import { PropsWithChildren, useState, useEffect } from "react";
-import { css } from "@emotion/react";
 
 const ActiveLink = ({
   children,

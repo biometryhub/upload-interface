@@ -1,4 +1,3 @@
-import { css } from "@emotion/react";
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
@@ -15,34 +14,19 @@ import { getFileType } from "../utils";
 import { Button, Glyph } from "./base";
 import { ErrorDetailModal, SelectedFile } from "./FileGallery";
 
-const dropZoneCss = css({
+const buttonStyle: React.CSSProperties = {
+  marginTop: "8px",
+};
+
+const dropZoneStyle: React.CSSProperties = {
   display: "flex",
-  width: "100%",
   flexFlow: "column",
-  ".drop-zone-container": {
-    display: "flex",
-    flexFlow: "row wrap",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    border: `thin dashed ${colors.midShadow}`,
-    borderRadius: "5px",
-    background: colors.grey,
-    minHeight: "233px",
-    paddingBottom: "11px",
-  },
-  ".drop-zone": {
-    display: "flex",
-    flexFlow: "column",
-    cursor: "pointer",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "144px",
-    flex: 1,
-  },
-  Button: {
-    marginTop: "8px",
-  },
-});
+  cursor: "pointer",
+  alignItems: "center",
+  justifyContent: "center",
+  height: "144px",
+  flex: 1,
+};
 
 export const DropZone = () => {
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
@@ -61,7 +45,7 @@ export const DropZone = () => {
   }, [acceptedFiles]);
 
   return (
-    <div css={dropZoneCss}>
+    <div className="container">
       <div className="drop-zone-container">
         <input {...getInputProps()} />
         {files.map((file, index) => (
@@ -72,10 +56,10 @@ export const DropZone = () => {
             onFileError={() => setErrorIndex(index)}
           />
         ))}
-        <div {...getRootProps({ className: "drop-zone" })}>
+        <div {...getRootProps({ style: dropZoneStyle })}>
           <b>Drop files here</b>
           <a>or</a>
-          <Button>
+          <Button style={buttonStyle}>
             <Glyph>{glyphs.openedFolder}</Glyph>
             <b>Browse</b>
           </Button>
@@ -86,6 +70,24 @@ export const DropZone = () => {
         onRequestClose={() => setErrorIndex(-1)}
         errorFile={errorFile}
       />
+      <style jsx>{`
+        .container {
+          display: flex;
+          width: 100%;
+          flex-flow: column;
+        }
+        .drop-zone-container {
+          display: flex;
+          flex-flow: row wrap;
+          align-items: center;
+          justify-content: flex-start;
+          border: thin dashed ${colors.midShadow};
+          border-radius: 5px;
+          background: ${colors.grey};
+          min-height: 233px;
+          padding-bottom: 11px;
+        }
+      `}</style>
     </div>
   );
 };
