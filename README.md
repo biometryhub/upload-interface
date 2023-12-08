@@ -7,6 +7,8 @@ including:
 - A web application for uploading/inputting data
 - An API server for the web app to insert data into the database
 
+## Table of Contents
+
 <!-- vim-markdown-toc GFM -->
 
 * [Development](#development)
