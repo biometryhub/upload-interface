@@ -35,14 +35,23 @@ Start a PostgreSQL instance,
 docker-compose down && docker-compose up -d
 ```
 
+Generate typing for Prisma ORM,
+
+```sh
+npx prisma generate
+```
+
+Migrate database and create migration scripts,
+
+```sh
+cp ./.env.sample ./.env.local
+yarn migrate:local                        
+```
+
 Start a web app on [http://localhost:3000][local-server],
 
 ```sh
-# yarn
 yarn dev
-
-# npm
-npm run dev
 ```
 
 ### Deployment
@@ -63,8 +72,8 @@ docker run -it -p 3000:3000 upload-interface
 
 ## Features
 
-- [] Parse operational management excel file.
-- [] Add subplot as a dropdown selection with confirmation.
+- [ ] Parse operational management excel file.
+- [ ] Add subplot as a dropdown selection with confirmation.
 
 <!-- external -->
 [node-js]: https://nodejs.org/
