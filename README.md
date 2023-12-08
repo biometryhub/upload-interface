@@ -1,34 +1,72 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# GRDC Trials
 
-## Getting Started
+This project attempts to standardize how farming research data could be stored in a centralized database
+including:
 
-First, run the development server:
+- A schema for related tables
+- A web application for uploading/inputting data
+- An API server for the web app to insert data into the database
 
-```bash
-npm run dev
-# or
-yarn dev
+<!-- vim-markdown-toc GFM -->
+
+* [Development](#development)
+    * [Prerequisites](#prerequisites)
+    * [Local Server](#local-server)
+    * [Deployment](#deployment)
+        * [Docker](#docker)
+* [Features](#features)
+
+<!-- vim-markdown-toc -->
+
+## Development
+
+### Prerequisites
+
+1.  [Node.js][node-js]
+2.  [Docker][docker]
+
+### Local Server
+
+Start a PostgreSQL instance,
+
+```sh
+docker-compose down && docker-compose up -d
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Start a web app on [http://localhost:3000][local-server],
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+```sh
+# yarn
+yarn dev
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+# npm
+npm run dev
+```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+### Deployment
 
-## Learn More
+#### Docker
 
-To learn more about Next.js, take a look at the following resources:
+Build,
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```sh
+docker build -t upload-interface .
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Run,
 
-## Deploy on Vercel
+```sh
+docker run -it -p 3000:3000 upload-interface
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- [] Parse operational management excel file.
+- [] Add subplot as a dropdown selection with confirmation.
+
+<!-- external -->
+[node-js]: https://nodejs.org/
+[docker]: https://www.docker.com/
+
+<!-- local -->
+[local-server]: http://localhost:3000
