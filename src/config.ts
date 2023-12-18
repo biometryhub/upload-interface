@@ -1,34 +1,65 @@
-export type Constraint = "string" | "number" | "date" | string[];
+export type ObjectConstraint = string[] | RegExp;
+export type Constraint = "string" | "number" | "date" | ObjectConstraint;
 type Constraints = {
   [key: string]: { [key: string]: Constraint };
 };
 
+// TODO: move config to a text file instead of source code
 export const constraints: Constraints = {
-  plot: {},
-  sowing: {
-    date: "date",
-    plant: "string",
-    depth_mm: "number",
-    density: "number",
-    plot_id: "number",
+  PLOTS: {
+    CONSULTANT_NAME: "string",
+    SITE: "string",
+    PLOT_ID: "string",
+    PLOT_LOCATION: "string",
+    TREATMENT_GROUP_2023: "string",
+    TREATMENT_GROUP_2024: "string",
+    TREATMENT_GROUP_2025: "string",
+    TREATMENT_GROUP_2026: "string",
   },
-  treatment: {
-    treatment: "string",
-    sowing_id: "number",
-  },
-  oper_mgmt: {
-    product_type: [
-      "herbicide",
-      "fungicide",
-      "molluscicide",
-      "fertiliser",
-      "insecticide",
-    ],
-    date: "date",
-    stage: "string",
-    product: "string",
-    amount: "number",
-    amount_unit: "string",
-    plot_id: "number",
+  OP_MGMT: {
+    // "Product type": [
+    //   "herbicide",
+    //   "fungicide",
+    //   "molluscicide",
+    //   "fertiliser",
+    //   "insecticide",
+    // ],
+    // Date: "date",
+    // Timing: "string",
+    // Product: "string",
+    // Rate: /\d+\.?\d* \w+/,
+    // "Crop(s)/Cultivar(s)": "string",
+    // "Comments/Rationale": "string",
+    DATE: "date",
+    PLOT_ID: "string",
+    ACTIVITY: "string",
+    PRODUCT: "string",
+    FERT_N: "string",
+    FERT_P: "string",
+    FERT_K: "string",
+    FERT_S: "string",
+    WEED_DISEASE_ACTIVE_INGRED_1: "string",
+    WEED_DISEASE_ACTIVE_INGRED_2: "string",
+    WEED_DISEASE_ACTIVE_INGRED_3: "string",
+    WEED_DISEASE_ACTIVE_INGRED_4: "string",
+    WEED_DISEASE_ACTIVE_INGRED_5: "string",
+    WEED_DISEASE_ACTIVE_INGRED_1_PERCENT_BY_WEIGHT: "number",
+    WEED_DISEASE_ACTIVE_INGRED_2_PERCENT_BY_WEIGHT: "number",
+    WEED_DISEASE_ACTIVE_INGRED_3_PERCENT_BY_WEIGHT: "number",
+    WEED_DISEASE_ACTIVE_INGRED_4_PERCENT_BY_WEIGHT: "number",
+    WEED_DISEASE_ACTIVE_INGRED_5_PERCENT_BY_WEIGHT: "number",
+    HARVEST_MACHINE: "string",
+    HARVEST_CROP_1: "string",
+    HARVEST_CROP_2: "string",
+    HARVEST_CROP_3: "string",
+    HARVEST_CROP_1_YIELD: "number",
+    HARVEST_CROP_2_YIELD: "number",
+    HARVEST_CROP_3_YIELD: "number",
+    SOWING_CROP_1: "string",
+    SOWING_CROP_2: "string",
+    SOWING_CROP_3: "string",
+    SOWING_CROP_1_DENSITY: "number",
+    SOWING_CROP_2_DENSITY: "number",
+    SOWING_CROP_3_DENSITY: "number",
   },
 };

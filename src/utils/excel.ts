@@ -1,11 +1,13 @@
 import * as XLSX from "xlsx";
-import { Constraint, constraints } from "../config";
+import { Constraint, constraints, ObjectConstraint } from "../config";
 import { FileInfo } from "../feature/upload/slice";
 
 type Row = (string | number)[];
 
 export const validate = (excel_binary: ArrayBuffer) => {
-  const wb = XLSX.read(excel_binary, { type: "buffer" });
+  // TODO: configurable or auto detect
+  const startRow = 0;
+  const wb = XLSX.read(excel_binary, { type: "buffer", cellDates: true });
 
   const result = {
     isValid: true,
@@ -16,7 +18,10 @@ export const validate = (excel_binary: ArrayBuffer) => {
   };
   Object.entries(constraints).forEach(([table, columns]) => {
     const sheet = wb.Sheets[table];
-    const rows = XLSX.utils.sheet_to_json<Row>(sheet, { header: 1 });
+    const rows = XLSX.utils.sheet_to_json<Row>(sheet, {
+      range: startRow,
+      header: 1,
+    });
 
     if (!isSheetValid(rows)) {
       result.isValid = false;
@@ -31,7 +36,7 @@ export const validate = (excel_binary: ArrayBuffer) => {
         if (typeof constraint === "string") {
           validator = validators[constraint];
         } else {
-          validator = validators.list(constraint);
+          validator = objectValidator(constraint);
         }
         rows.slice(1).forEach((row, rowNumber) => {
           const value = row[column_index];
@@ -43,9 +48,8 @@ export const validate = (excel_binary: ArrayBuffer) => {
 
             result.errors.invalid[table][column] = [
               ...(result.errors.invalid[table]?.[column] || []),
-              rowNumber + 2,
+              rowNumber + 2 + startRow,
             ];
-            // return;
           }
         });
       }
@@ -63,15 +67,24 @@ const isSheetValid = (rows: any) => {
 };
 
 const validators = {
-  string: (v: any) => typeof v === "string",
-  number: (v: any) => typeof v === "number",
-  date: (v: any) => {
-    if (typeof v === "string") {
-      // match valid dd-mm-yyyy
-      return v.match(/\d{4}-(0[1-9]|1[012])-([012][1-9]|[123][01])/) != null;
-    }
-    return false;
-  },
-  list: (valid_values: (string | number)[]) => (v: any) =>
-    valid_values.includes(v),
+  string: (v: any) => typeof v === "string" || v == null,
+  number: (v: any) => typeof v === "number" || v == null,
+  date: (v: any) => v instanceof Date,
 };
+
+const objectValidator = (constraint: ObjectConstraint) => {
+  if (Array.isArray(constraint)) {
+    return listValidator(constraint);
+  }
+
+  if (constraint instanceof RegExp) {
+    return regExpValidator(constraint);
+  }
+
+  throw new Error(`${constraint} is not a valid constraint.`);
+};
+
+const listValidator = (valid_values: (string | number)[]) => (v: any) =>
+  valid_values.includes(v);
+
+const regExpValidator = (regExp: RegExp) => (v: any) => v.match(regExp) != null;

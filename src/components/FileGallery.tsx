@@ -219,8 +219,8 @@ export const ErrorDetailModal = ({ errorFile, ...props }: InfoModalProps) => {
                   {Object.entries(columns).map(([column, errorRows], j) => (
                     <li key={j}>
                       <Glyph>{`  ${glyphs.warning} `}</Glyph>
-                      row(s), <b>{errorRows.join(", ")}</b>, in column{" "}
-                      <b>{column}</b>.
+                      column <b>{column}</b>, row(s),{" "}
+                      <b>{errorRows.join(", ")}</b>
                     </li>
                   ))}
                 </ul>
