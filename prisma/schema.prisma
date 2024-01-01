@@ -14,65 +14,71 @@ datasource db {
 model Region {
   id        Int      @id @default(autoincrement())
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   sites  Site[]
   events Event[]
 
-  @@map("regions")
+  @@map("region")
 }
 
 model Site {
   id        Int      @id @default(autoincrement())
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  region       Region?      @relation(fields: [regionId], references: [id])
-  regionId     Int          @unique
-  consultant   Consultancy? @relation(fields: [consultantId], references: [id])
-  consultantId Int          @unique
+  region       Region?     @relation(fields: [regionId], references: [id])
+  regionId     Int         @map("region_id")
+  consultant   Consultant? @relation(fields: [consultantId], references: [id])
+  consultantId Int         @map("consultant_id")
 
-  plots  Plot[]
-  groups Group[]
-  events Event[]
+  plotGroups PlotGroup[]
+  groups     Group[]
+  events     Event[]
 
-  @@map("sites")
+  @@index([regionId])
+  @@index([consultantId])
+  @@map("site")
 }
 
 // Each site has a single consultant managing that site
 // each consultant can manage multiple sites
-model Consultancy {
+model Consultant {
   id           Int      @id @default(autoincrement())
   name         String
-  primaryUser  String
-  contactEmail String
-  contactPhone Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  primaryUser  String   @map("primary_user")
+  contactEmail String   @map("contact_email")
+  contactPhone String   @map("contact_phone")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   users User[]
   sites Site[]
 
-  @@map("consultancies")
+  @@index([name])
+  @@map("consultant")
 }
 
 model User {
   id        Int       @id @default(autoincrement())
-  firstName String
-  lastName  String
+  firstName String    @map("first_name")
+  lastName  String    @map("last_name")
   email     String
   role      UserRoles
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
-  consultant   Consultancy? @relation(fields: [consultantId], references: [id])
-  consultantId Int          @unique
+  consultant   Consultant? @relation(fields: [consultantId], references: [id])
+  consultantId Int         @map("consultant_id")
 
   approved Boolean
 
-  @@map("users")
+  @@index([consultantId])
+  @@index([firstName])
+  @@index([role])
+  @@map("user")
 }
 
 enum UserRoles {
@@ -80,37 +86,40 @@ enum UserRoles {
   RESEARCHER
 }
 
-model Plot {
+model PlotGroup {
   id        Int      @id @default(autoincrement())
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   site   Site? @relation(fields: [siteId], references: [id])
-  siteId Int   @unique
+  siteId Int   @map("site_id")
   // system String
 
-  subplots Subplot[]
-  events   Event[]
+  plots  Plot[]
+  events Event[]
 
-  @@map("plots")
+  @@index([siteId])
+  @@index([name])
+  @@map("plot_group")
 }
 
-model Subplot {
-  id        Int      @id @default(autoincrement())
-  label     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Plot {
+  id        String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  plot    Plot?  @relation(fields: [plotId], references: [id])
-  plotId  Int    @unique
-  group   Group? @relation(fields: [groupId], references: [id])
-  groupId Int    @unique
+  plotGroup   PlotGroup? @relation(fields: [plotGroupId], references: [id])
+  plotGroupId Int        @map("plot_group_id")
+  group       Group?     @relation(fields: [groupId], references: [id])
+  groupId     Int        @map("group_id")
 
-  events       Event[]
-  plot_actions Action[]
+  events  Event[]
+  actions Action[]
 
-  @@map("subplots")
+  @@index([plotGroupId])
+  @@index([groupId])
+  @@map("plot")
 }
 
 // This is just a temporary (each year) mapping of subplots to a 'group'
@@ -119,17 +128,19 @@ model Subplot {
 // so this is just a utility to more easily enter data so that group level actions flow down to subplots.
 model Group {
   id        Int      @id @default(autoincrement())
-  // label     String // an alphanumeric label for each group
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  year      Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   site   Site? @relation(fields: [siteId], references: [id])
-  siteId Int   @unique
+  siteId Int   @map("site_id")
 
-  subplots      Subplot[]
+  subplots      Plot[]
   group_actions Action[]
 
-  @@map("groups")
+  @@index([siteId])
+  @@index([year])
+  @@map("group")
 }
 
 // Event can occur at region, site, plot and subplot level
@@ -138,17 +149,17 @@ model Event {
   description String
   date        DateTime
   type        EventType
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  region    Region?  @relation(fields: [regionId], references: [id])
-  regionId  Int      @unique
-  site      Site?    @relation(fields: [siteId], references: [id])
-  siteId    Int      @unique
-  plot      Plot?    @relation(fields: [plotId], references: [id])
-  plotId    Int      @unique
-  subplot   Subplot? @relation(fields: [subplotId], references: [id])
-  subplotId Int      @unique
+  region      Region?    @relation(fields: [regionId], references: [id])
+  regionId    Int        @map("region_id")
+  site        Site?      @relation(fields: [siteId], references: [id])
+  siteId      Int        @map("site_id")
+  plotGroup   PlotGroup? @relation(fields: [plotGroupId], references: [id])
+  plotGroupId Int        @map("plot_group_id")
+  plot        Plot?      @relation(fields: [plotId], references: [id])
+  plotId      String     @map("plot_id")
 
   data Json
 
@@ -165,7 +176,7 @@ model Event {
   crop_damage_estimated_percent Float?
   comments                      String?
 
-  @@map("events") //map to events table
+  @@map("event") //map to events table
 }
 
 // Action model for planned trial activities (e.g. fertiliser application)
@@ -175,44 +186,96 @@ model Action {
   id          Int      @id @default(autoincrement())
   description String
   date        DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  group     Group?   @relation(fields: [groupId], references: [id])
-  groupId   Int      @unique
-  subplot   Subplot? @relation(fields: [subplotId], references: [id])
-  subplotId Int      @unique
+  group       Group?   @relation(fields: [groupId], references: [id])
+  groupId     Int      @map("group_id")
+  plot        Plot?    @relation(fields: [plotId], references: [id])
+  plotId      String   @map("plot_id")
+  product     Product? @relation(fields: [productName], references: [name])
+  productName String   @map("product_name")
 
-  // describe each action - each action has different data needs
-  // QUESTION - should each action have a different table with some way of linking that to this by an indicator variable like an enum? except each enum has different fields
+  fertN                                   Float  @map("fert_n")
+  fertP                                   Float  @map("fert_p")
+  fertK                                   Float  @map("fert_k")
+  fertS                                   Float  @map("fert_s")
+  weedDiseaseActiveIngred1                String @map("weed_disease_active_ingred_1")
+  weedDiseaseActiveIngred2                String @map("weed_disease_active_ingred_2")
+  weedDiseaseActiveIngred3                String @map("weed_disease_active_ingred_3")
+  weedDiseaseActiveIngred4                String @map("weed_disease_active_ingred_4")
+  weedDiseaseActiveIngred5                String @map("weed_disease_active_ingred_5")
+  weedDiseaseActiveIngred1PercentByWeight Float  @map("weed_disease_active_ingred_1_percent_by_weight")
+  weedDiseaseActiveIngred2PercentByWeight Float  @map("weed_disease_active_ingred_2_percent_by_weight")
+  weedDiseaseActiveIngred3PercentByWeight Float  @map("weed_disease_active_ingred_3_percent_by_weight")
+  weedDiseaseActiveIngred4PercentByWeight Float  @map("weed_disease_active_ingred_4_percent_by_weight")
+  weedDiseaseActiveIngred5PercentByWeight Float  @map("weed_disease_active_ingred_5_percent_by_weight")
+  applicationRate                         Float  @map("application_rate")
+  applicationUnit                         String @map("application_unit")
+  harvestMachine                          String @map("harvest_machine")
+  harvestCrop1                            String @map("harvest_crop_1")
+  harvestCrop2                            String @map("harvest_crop_2")
+  harvestCrop3                            String @map("harvest_crop_3")
+  harvestCrop1Yield                       Float  @map("harvest_crop_1_yield")
+  harvestCrop2Yield                       Float  @map("harvest_crop_2_yield")
+  harvestCrop3Yield                       Float  @map("harvest_crop_3_yield")
+  sowingCrop1                             String @map("sowing_crop_1")
+  sowingCrop2                             String @map("sowing_crop_2")
+  sowingCrop3                             String @map("sowing_crop_3")
+  sowingCrop1Density                      Float  @map("sowing_crop_1_density")
+  sowingCrop2Density                      Float  @map("sowing_crop_2_density")
+  sowingCrop3Density                      Float  @map("sowing_crop_3_density")
 
-  // crop stage at time of action
-  crop_stage    CropStage
-  action_reason Reason?
+  // // describe each action - each action has different data needs
+  // // QUESTION - should each action have a different table with some way of linking that to this by an indicator variable like an enum? except each enum has different fields
+  //
+  // // crop stage at time of action
+  // crop_stage    CropStage
+  // action_reason Reason?
+  //
+  // // Fertiliser application
+  // fertiliser_name Fertiliser?
+  // fertiliser_rate Float?
+  //
+  // // Herbicide application
+  // herbicide_name Herbicide?
+  // herbicide_rate Float?
+  // target_weeds   Weeds[] // QUESTION want to make this optional...
+  //
+  // // Planting/seeding
+  // crop_planted Crop?
+  // density      Float?
+  //
+  // // Harvest
+  // harvest_crop Crop?
+  // yield        Float?
+  //
+  // // Biomass cut/assessment
+  // area_cut Float?
+  // biomass  Float?
+  //
+  // action_comments  String?
+  // general_comments String?
+}
 
-  // Fertiliser application
-  fertiliser_name Fertiliser?
-  fertiliser_rate Float?
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  productType ProductType @map("product_type")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  Action      Action[]
 
-  // Herbicide application
-  herbicide_name Herbicide?
-  herbicide_rate Float?
-  target_weeds   Weeds[] // QUESTION want to make this optional...
+  @@index([productType])
+  @@map("product")
+}
 
-  // Planting/seeding
-  crop_planted Crop?
-  density      Float?
-
-  // Harvest
-  harvest_crop Crop?
-  yield        Float?
-
-  // Biomass cut/assessment
-  area_cut Float?
-  biomass  Float?
-
-  action_comments  String?
-  general_comments String?
+enum ProductType {
+  HERBICIDE
+  FUNGICIDE
+  MOLLUSCICIDE
+  FERTILISER
+  INSECTICIDE
 }
 
 enum EventType {
