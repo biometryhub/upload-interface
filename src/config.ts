@@ -16,7 +16,7 @@ export const constraints: Constraints = {
     TREATMENT_GROUP_2025: "string",
     TREATMENT_GROUP_2026: "string",
   },
-  OP_MGMT: {
+  "OP MGMT": {
     // "Product type": [
     //   "herbicide",
     //   "fungicide",

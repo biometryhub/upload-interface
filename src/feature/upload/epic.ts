@@ -69,9 +69,10 @@ const readFile = (file: File, fileType: string) =>
 
       if (fileType === "xlsx") {
         const buffer = dataUrlToBuffer(data);
-        const { isValid, errors } = validate(buffer);
+        const { isValid, errors, content } = validate(buffer);
         res.errors = errors;
         res.status = isValid ? "valid" : "invalid";
+        res.data = JSON.stringify(content);
       }
 
       observer$.next(res);

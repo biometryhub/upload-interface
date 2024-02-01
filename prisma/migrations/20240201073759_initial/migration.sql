@@ -42,7 +42,7 @@ CREATE TABLE "site" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "region_id" INTEGER NOT NULL,
-    "consultant_id" INTEGER NOT NULL,
+    "consultant_id" INTEGER,
 
     CONSTRAINT "site_pkey" PRIMARY KEY ("id")
 );
@@ -91,19 +91,30 @@ CREATE TABLE "plot" (
     "id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
-    "plot_group_id" INTEGER NOT NULL,
-    "group_id" INTEGER NOT NULL
+    "plot_group_id" INTEGER NOT NULL
 );
 
 -- CreateTable
-CREATE TABLE "group" (
+CREATE TABLE "plot_treatment_group" (
     "id" SERIAL NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "plot_id" TEXT NOT NULL,
+    "treatment_group_id" INTEGER,
+
+    CONSTRAINT "plot_treatment_group_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "treatment_group" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
     "year" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "site_id" INTEGER NOT NULL,
 
-    CONSTRAINT "group_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "treatment_group_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -139,7 +150,7 @@ CREATE TABLE "Action" (
     "date" TIMESTAMP(3) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
-    "group_id" INTEGER NOT NULL,
+    "treatment_group_id" INTEGER NOT NULL,
     "plot_id" TEXT NOT NULL,
     "product_name" TEXT NOT NULL,
     "fert_n" DOUBLE PRECISION NOT NULL,
@@ -217,13 +228,19 @@ CREATE UNIQUE INDEX "plot_id_key" ON "plot"("id");
 CREATE INDEX "plot_plot_group_id_idx" ON "plot"("plot_group_id");
 
 -- CreateIndex
-CREATE INDEX "plot_group_id_idx" ON "plot"("group_id");
+CREATE INDEX "plot_treatment_group_plot_id_idx" ON "plot_treatment_group"("plot_id");
 
 -- CreateIndex
-CREATE INDEX "group_site_id_idx" ON "group"("site_id");
+CREATE INDEX "plot_treatment_group_treatment_group_id_idx" ON "plot_treatment_group"("treatment_group_id");
 
 -- CreateIndex
-CREATE INDEX "group_year_idx" ON "group"("year");
+CREATE INDEX "treatment_group_site_id_idx" ON "treatment_group"("site_id");
+
+-- CreateIndex
+CREATE INDEX "treatment_group_year_idx" ON "treatment_group"("year");
+
+-- CreateIndex
+CREATE INDEX "treatment_group_name_idx" ON "treatment_group"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "product_name_key" ON "product"("name");
@@ -235,7 +252,7 @@ CREATE INDEX "product_product_type_idx" ON "product"("product_type");
 ALTER TABLE "site" ADD CONSTRAINT "site_region_id_fkey" FOREIGN KEY ("region_id") REFERENCES "region"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "site" ADD CONSTRAINT "site_consultant_id_fkey" FOREIGN KEY ("consultant_id") REFERENCES "consultant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "site" ADD CONSTRAINT "site_consultant_id_fkey" FOREIGN KEY ("consultant_id") REFERENCES "consultant"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "user" ADD CONSTRAINT "user_consultant_id_fkey" FOREIGN KEY ("consultant_id") REFERENCES "consultant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -247,10 +264,13 @@ ALTER TABLE "plot_group" ADD CONSTRAINT "plot_group_site_id_fkey" FOREIGN KEY ("
 ALTER TABLE "plot" ADD CONSTRAINT "plot_plot_group_id_fkey" FOREIGN KEY ("plot_group_id") REFERENCES "plot_group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "plot" ADD CONSTRAINT "plot_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "plot_treatment_group" ADD CONSTRAINT "plot_treatment_group_plot_id_fkey" FOREIGN KEY ("plot_id") REFERENCES "plot"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "group" ADD CONSTRAINT "group_site_id_fkey" FOREIGN KEY ("site_id") REFERENCES "site"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "plot_treatment_group" ADD CONSTRAINT "plot_treatment_group_treatment_group_id_fkey" FOREIGN KEY ("treatment_group_id") REFERENCES "treatment_group"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "treatment_group" ADD CONSTRAINT "treatment_group_site_id_fkey" FOREIGN KEY ("site_id") REFERENCES "site"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "event" ADD CONSTRAINT "event_region_id_fkey" FOREIGN KEY ("region_id") REFERENCES "region"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -265,7 +285,7 @@ ALTER TABLE "event" ADD CONSTRAINT "event_plot_group_id_fkey" FOREIGN KEY ("plot
 ALTER TABLE "event" ADD CONSTRAINT "event_plot_id_fkey" FOREIGN KEY ("plot_id") REFERENCES "plot"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Action" ADD CONSTRAINT "Action_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Action" ADD CONSTRAINT "Action_treatment_group_id_fkey" FOREIGN KEY ("treatment_group_id") REFERENCES "treatment_group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Action" ADD CONSTRAINT "Action_plot_id_fkey" FOREIGN KEY ("plot_id") REFERENCES "plot"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

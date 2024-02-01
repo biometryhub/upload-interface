@@ -1,8 +1,6 @@
 import { colors, styles } from "../constants";
 import ActiveLink from "./ActiveLink";
 
-// TODO: convert all emotion to style-jsx
-
 export const NavigationBar = () => {
   return (
     <div>

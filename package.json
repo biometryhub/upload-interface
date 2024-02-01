@@ -9,10 +9,12 @@
     "lint": "next lint",
     "prepare": "husky install",
     "migrate:local": "dotenv -e .env.local -- npx prisma migrate dev",
+    "docker-compose:restart": "docker-compose down && docker-compose up -d && dotenv -e .env.local -- npx prisma migrate dev",
     "migrate:local:flush": "rm -r prisma/migrations && dotenv -e .env.local -- npx prisma migrate dev"
   },
   "dependencies": {
-    "@prisma/client": "^5.6.0",
+    "@emotion/react": "^11.11.3",
+    "@prisma/client": "^5.7.1",
     "@react-rxjs/core": "^0.10.3",
     "@react-rxjs/utils": "^0.9.5",
     "@reduxjs/toolkit": "^1.8.6",
@@ -38,7 +40,7 @@
     "husky": "^8.0.2",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
-    "prisma": "^5.6.0",
+    "prisma": "^5.7.1",
     "typescript": "4.8.3"
   },
   "lint-staged": {

@@ -2,7 +2,8 @@ import * as XLSX from "xlsx";
 import { Constraint, constraints, ObjectConstraint } from "../config";
 import { FileInfo } from "../feature/upload/slice";
 
-type Row = (string | number)[];
+export type Row = { [key: string]: string | number };
+export type ExcelContent = { [key: string]: Row[] };
 
 export const validate = (excel_binary: ArrayBuffer) => {
   // TODO: configurable or auto detect
@@ -15,39 +16,41 @@ export const validate = (excel_binary: ArrayBuffer) => {
       missing: [] as string[],
       invalid: {},
     } as Required<FileInfo>["errors"],
+    content: {} as ExcelContent,
   };
-  Object.entries(constraints).forEach(([table, columns]) => {
-    const sheet = wb.Sheets[table];
+  Object.entries(constraints).forEach(([sheetName, columns]) => {
+    const sheet = wb.Sheets[sheetName];
     const rows = XLSX.utils.sheet_to_json<Row>(sheet, {
       range: startRow,
-      header: 1,
     });
 
     if (!isSheetValid(rows)) {
       result.isValid = false;
-      result.errors.missing = [...result.errors.missing, table];
+      result.errors.missing = [...result.errors.missing, sheetName];
       return;
     }
 
+    console.log(rows);
+    result.content[sheetName] = rows;
+
     Object.entries(columns).forEach(
       ([column, constraint]: [string, Constraint]) => {
-        const column_index = rows[0].indexOf(column);
         let validator = validators.string;
         if (typeof constraint === "string") {
           validator = validators[constraint];
         } else {
           validator = objectValidator(constraint);
         }
-        rows.slice(1).forEach((row, rowNumber) => {
-          const value = row[column_index];
+        rows.forEach((row, rowNumber) => {
+          const value = row[column];
           if (!validator(value)) {
             result.isValid = false;
-            if (!result.errors.invalid[table]) {
-              result.errors.invalid[table] = {};
+            if (!result.errors.invalid[sheetName]) {
+              result.errors.invalid[sheetName] = {};
             }
 
-            result.errors.invalid[table][column] = [
-              ...(result.errors.invalid[table]?.[column] || []),
+            result.errors.invalid[sheetName][column] = [
+              ...(result.errors.invalid[sheetName]?.[column] || []),
               rowNumber + 2 + startRow,
             ];
           }
